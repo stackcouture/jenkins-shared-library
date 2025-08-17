@@ -1,26 +1,23 @@
 def call(String reportName = 'Test Report', String reportFilePattern = 'surefire-report.html') {
     script {
+        // Archive raw test result XMLs
         archiveArtifacts artifacts: "target/surefire-reports/*.xml", allowEmptyArchive: true
 
+        // Publish JUnit results (if available)
         if (fileExists('target/surefire-reports')) {
             junit 'target/surefire-reports/*.xml'
         } else {
             echo "No test results found."
         }
 
-        // Collect available reports
+        // Collect available cards
         def cards = []
-
-        // JUnit HTML (Surefire)
         def reportDir = 'target/site'
+
+        // ✅ JUnit HTML (Surefire)
         def resolved = findFiles(glob: "${reportDir}/**/${reportFilePattern}")
         if (resolved.length > 0) {
-            def actualFile = resolved[0]
-            def reportFileName = new File(actualFile.path).getName()
-
-            // Make it relative to reportDir so Jenkins can serve it
-            def junitRelPath = actualFile.path.replaceFirst("${reportDir}/", "")
-
+            def junitRelPath = resolved[0].path.replaceFirst("${reportDir}/", "")
             cards << """
               <div class="card junit">
                   <h2>JUnit Test Report</h2>
@@ -31,8 +28,8 @@ def call(String reportName = 'Test Report', String reportFilePattern = 'surefire
             echo "No HTML test report found matching: ${reportDir}/**/${reportFilePattern}"
         }
 
-        // JaCoCo
-        def jacocoHtmlDir = 'target/site/jacoco'
+        // ✅ JaCoCo Coverage
+        def jacocoHtmlDir = "${reportDir}/jacoco"
         if (fileExists("${jacocoHtmlDir}/index.html")) {
             cards << """
               <div class="card jacoco">
@@ -44,8 +41,8 @@ def call(String reportName = 'Test Report', String reportFilePattern = 'surefire
             echo "No JaCoCo HTML report found at: ${jacocoHtmlDir}/index.html"
         }
 
-        // Javadoc
-        def javadocDir = 'target/site/apidocs'
+        // ✅ Javadoc
+        def javadocDir = "${reportDir}/apidocs"
         if (fileExists("${javadocDir}/index.html")) {
             cards << """
               <div class="card javadoc">
@@ -57,7 +54,7 @@ def call(String reportName = 'Test Report', String reportFilePattern = 'surefire
             echo "No Javadoc HTML report found at: ${javadocDir}/index.html"
         }
 
-        // Build dashboard HTML with Dark/Light theme toggle
+        // ✅ Build Dashboard HTML
         def htmlContent = """
         <!DOCTYPE html>
         <html lang="en">
@@ -89,6 +86,7 @@ def call(String reportName = 'Test Report', String reportFilePattern = 'surefire
             h1 {
               text-align: center;
               margin-bottom: 20px;
+              font-size: 2rem;
             }
             .theme-toggle {
               display: flex;
@@ -139,7 +137,10 @@ def call(String reportName = 'Test Report', String reportFilePattern = 'surefire
             a {
               text-decoration: none;
               font-weight: bold;
-              color: inherit;
+              color: #1e90ff;
+            }
+            a:hover {
+              text-decoration: underline;
             }
           </style>
         </head>
@@ -166,12 +167,11 @@ def call(String reportName = 'Test Report', String reportFilePattern = 'surefire
         </html>
         """
 
-        // Write and publish the dashboard
-        writeFile file: 'target/site/reports-dashboard.html', text: htmlContent
-
+        // Write and publish dashboard
+        writeFile file: "${reportDir}/reports-dashboard.html", text: htmlContent
         publishHTML([
             reportName: 'Reports Dashboard',
-            reportDir: 'target/site',
+            reportDir: reportDir,
             reportFiles: 'reports-dashboard.html',
             keepAll: true,
             alwaysLinkToLastBuild: true,
