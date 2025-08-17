@@ -13,10 +13,10 @@ def call(Map config = [:]) {
     def customMessage = ""
     def isGitleaksOnly = false
 
-    println "[DEBUG] isGitleaksNotification (raw): ${config.isGitleaksNotification}"
-    println "[DEBUG] isGitleaks (parsed): ${isGitleaks}"
-    println "[DEBUG] leakCount: ${leakCount}"
-    println "[DEBUG] reportUrl: ${reportUrl}"
+    echo "[DEBUG] isGitleaksNotification (raw): ${config.isGitleaksNotification}"
+    echo "[DEBUG] isGitleaks (parsed): ${isGitleaks}"
+    echo "[DEBUG] leakCount: ${leakCount}"
+    echo "[DEBUG] reportUrl: ${reportUrl}"
 
     // Retrieve Slack token from AWS Secrets Manager
     def secrets
@@ -35,9 +35,8 @@ def call(Map config = [:]) {
         ABORTED : "🛑 Deployment Aborted!"
     ]
 
-    // Handle Gitleaks scan notification
+    // Gitleaks-specific handling
     if (isGitleaks) {
-       
         isGitleaksOnly = true
         if (leakCount == 0) {
             customMessage = "✅ *Gitleaks Scan Result:* No secrets found in the scanned commit."
@@ -49,8 +48,6 @@ def call(Map config = [:]) {
             effectiveStatus = 'FAILURE'
             effectiveColor = 'danger'
         }
-    }else {
-        echo "No leaks found"
     }
 
     wrap([$class: 'BuildUser']) {
