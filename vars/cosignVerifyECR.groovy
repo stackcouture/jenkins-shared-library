@@ -1,10 +1,16 @@
-def cosignVerifyECR(Map config = [:]) {
+def call(Map config = [:]) {
     def fullDigestTag = config.fullDigestTag ?: error("Missing 'fullDigestTag'")
 
     echo "Verifying Cosign signature for image: ${fullDigestTag}"
 
-    sh """
-        export COSIGN_EXPERIMENTAL=1
-        cosign verify --key \$COSIGN_PUB ${fullDigestTag}
-    """
+    // Use Jenkins credentials for public key
+    withEnv([]) {
+        sh """
+            cosign verify \
+                --key ${env.COSIGN_PUB} \
+                ${fullDigestTag}
+        """
+    }
+
+    echo "Cosign verification completed for ${fullDigestTag}"
 }
