@@ -45,8 +45,7 @@ def call(Map config = [:]) {
 
         try {
             sh "git push origin ${branch}"
-            def commitSha = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
-            echo "Tag update pushed. Commit SHA: ${commitSha}"
+            echo "Tag update pushed with Image Tag: ${imageTag}"
         } catch (e) {
             error("Failed to push tag update. Reason:\n${e.message}")
         }
