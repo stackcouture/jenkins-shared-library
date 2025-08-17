@@ -4,7 +4,7 @@ def call(Map config = [:]) {
     def secretName = config.secretName ?: error("Missing 'secretName'")
     def slackChannel = config.channel ?: "#app-demo" // You can override this via config
 
-     // Additional optional info for Gitleaks
+    // Additional optional info for Gitleaks
     def leakCount = config.leakCount ?: 0
     def reportUrl = config.reportUrl ?: ""
 
@@ -25,7 +25,7 @@ def call(Map config = [:]) {
         ABORTED : "🛑 Deployment Aborted!"
     ]
 
-     // Custom message for Gitleaks scan
+    // Custom message for Gitleaks scan
     def customMessage = ""
     if (config.isGitleaksNotification == true) {
         if (leakCount == 0) {
@@ -48,21 +48,28 @@ def call(Map config = [:]) {
         def buildNumber = env.BUILD_NUMBER ?: "N/A"
         def branch = params.BRANCH ?: env.GIT_BRANCH ?: "N/A"
 
+        // Build message explicitly to ensure customMessage is appended properly
+        def slackMessage = """\
+            *${emojiMap[status] ?: status}*
+            *Project:* `${jobName}`
+            *Commit:* `${commitSha}`
+            *Build Number:* #${buildNumber}
+            *Branch:* `${branch}`
+            *Triggered By:* ${triggeredBy} 👤
+            *Build Link:* <${buildUrl}|Click to view in Jenkins>
+        """.stripIndent()
+
+        if (customMessage) {
+            slackMessage += "\n${customMessage}"
+        }
+
+        slackMessage += "\n_This is an automated notification from Jenkins 🤖_"
+
         slackSend(
             channel: slackChannel,
             token: slackToken,
             color: color,
-            message: """\
-                *${emojiMap[status] ?: status}*
-                *Project:* `${jobName}`
-                *Commit:* `${commitSha}`
-                *Build Number:* #${buildNumber}
-                *Branch:* `${branch}`
-                *Triggered By:* ${triggeredBy} 👤
-                *Build Link:* <${buildUrl}|Click to view in Jenkins>
-                ${customMessage ? "\n${customMessage}" : ""}
-                _This is an automated notification from Jenkins 🤖_
-                """.stripIndent().trim()
+            message: slackMessage
         )
     }
 }
