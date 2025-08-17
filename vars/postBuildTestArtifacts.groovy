@@ -1,16 +1,10 @@
 def call(String reportName = 'Test Report', String reportFilePattern = 'surefire-report.html') {
     script {
-        // Archive raw test result XMLs
         archiveArtifacts artifacts: "target/surefire-reports/*.xml", allowEmptyArchive: true
-
-        // Publish JUnit results (if available)
         if (fileExists('target/surefire-reports')) {
             junit 'target/surefire-reports/*.xml'
-        } else {
-            echo "No test results found."
         }
 
-        // Collect available cards
         def cards = []
         def reportDir = 'target/site'
 
@@ -20,41 +14,33 @@ def call(String reportName = 'Test Report', String reportFilePattern = 'surefire
             def junitRelPath = resolved[0].path.replaceFirst("${reportDir}/", "")
             cards << """
               <div class="card junit">
-                  <h2>JUnit Test Report</h2>
-                  <p><a href="${junitRelPath}" target="_blank">View Test Report</a></p>
+                <h2>JUnit Test Report</h2>
+                <p><a href="${junitRelPath}" target="_blank">View Test Report</a></p>
               </div>
             """
-        } else {
-            echo "No HTML test report found matching: ${reportDir}/**/${reportFilePattern}"
         }
 
         // ✅ JaCoCo Coverage
-        def jacocoHtmlDir = "${reportDir}/jacoco"
-        if (fileExists("${jacocoHtmlDir}/index.html")) {
+        if (fileExists("${reportDir}/jacoco/index.html")) {
             cards << """
               <div class="card jacoco">
                 <h2>JaCoCo Coverage</h2>
                 <p><a href="jacoco/index.html" target="_blank">View Coverage Report</a></p>
               </div>
             """
-        } else {
-            echo "No JaCoCo HTML report found at: ${jacocoHtmlDir}/index.html"
         }
 
         // ✅ Javadoc
-        def javadocDir = "${reportDir}/apidocs"
-        if (fileExists("${javadocDir}/index.html")) {
+        if (fileExists("${reportDir}/apidocs/index.html")) {
             cards << """
               <div class="card javadoc">
                 <h2>API Documentation (Javadoc)</h2>
                 <p><a href="apidocs/index.html" target="_blank">View API Docs</a></p>
               </div>
             """
-        } else {
-            echo "No Javadoc HTML report found at: ${javadocDir}/index.html"
         }
 
-        // ✅ Build Dashboard HTML (Pure CSS Toggle)
+        // ✅ Build Dashboard HTML (pure CSS toggle)
         def htmlContent = """
         <!DOCTYPE html>
         <html lang="en">
@@ -62,13 +48,14 @@ def call(String reportName = 'Test Report', String reportFilePattern = 'surefire
           <meta charset="UTF-8">
           <title>Project Reports Dashboard</title>
           <style>
-            :root {
+            /* Default (Light) Theme */
+            .dashboard {
               --bg: #f8f9fa;
               --card: #ffffff;
               --text: #333333;
               --shadow: 0 2px 6px rgba(0,0,0,0.15);
             }
-            /* Dark mode overrides */
+            /* Dark Theme overrides when toggle checked */
             #darkToggle:checked ~ .dashboard {
               --bg: #1e1e2f;
               --card: #2b2b3c;
@@ -148,7 +135,6 @@ def call(String reportName = 'Test Report', String reportFilePattern = 'surefire
         </html>
         """
 
-        // Write and publish dashboard
         writeFile file: "${reportDir}/reports-dashboard.html", text: htmlContent
         publishHTML([
             reportName: 'Reports Dashboard',
