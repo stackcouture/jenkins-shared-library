@@ -11,19 +11,21 @@ def call(String reportName = 'Test Report', String reportFilePattern = 'surefire
         // Collect available reports
         def cards = []
 
-        // JUnit HTML (Surefire)
+       // JUnit HTML (Surefire)
         def reportDir = 'target/site'
         def resolved = findFiles(glob: "${reportDir}/**/${reportFilePattern}")
         if (resolved.length > 0) {
             def actualFile = resolved[0]
-            def reportDirPath = new File(actualFile.path).getParent()
             def reportFileName = new File(actualFile.path).getName()
-            def junitRelPath = "${new File(reportDirPath).name}/${reportFileName}"
+
+            // Make it relative to reportDir so Jenkins can serve it
+            def junitRelPath = actualFile.path.replaceFirst("${reportDir}/", "")
+
             cards << """
-              <div class="card junit">
+            <div class="card junit">
                 <h2>JUnit Test Report</h2>
                 <p><a href="${junitRelPath}">View Test Report</a></p>
-              </div>
+            </div>
             """
         } else {
             echo "No HTML test report found matching: ${reportDir}/**/${reportFilePattern}"
