@@ -7,6 +7,10 @@ def call(Map config = [:]) {
     def leakCount = config.leakCount ?: 0
     def reportUrl = config.reportUrl ?: ""
 
+    // Safely handle Gitleaks flag
+    def isGitleaks = (config.isGitleaksNotification ?: false).toString().toBoolean()
+
+    // Get secrets from AWS
     def secrets
     try {
         secrets = getAwsSecret(secretName, 'ap-south-1')
@@ -26,8 +30,6 @@ def call(Map config = [:]) {
     def effectiveStatus = baseStatus
     def effectiveColor = baseColor
     def customMessage = ""
-
-    def isGitleaks = (config.isGitleaksNotification ?: false).toString().toBoolean()
 
     if (isGitleaks) {
         if (leakCount == 0) {
@@ -51,16 +53,16 @@ def call(Map config = [:]) {
         def branch = params.BRANCH ?: env.GIT_BRANCH ?: "N/A"
 
         def slackMessage = """\
-            *${emojiMap[effectiveStatus] ?: effectiveStatus}*
-            *Project testing:* `${jobName}`
-            *Commit:* `${commitSha}`
-            *Build Number:* #${buildNumber}
-            *Branch:* `${branch}`
-            *Triggered By:* ${triggeredBy} 👤
-            *Build Link:* <${buildUrl}|Click to view in Jenkins>
-        """.stripIndent()
+*${emojiMap[effectiveStatus] ?: effectiveStatus}*
+*Project:* `${jobName}`
+*Commit:* `${commitSha}`
+*Build Number:* #${buildNumber}
+*Branch:* `${branch}`
+*Triggered By:* ${triggeredBy} 👤
+*Build Link:* <${buildUrl}|Click to view in Jenkins>
+""".stripIndent()
 
-        if (customMessage) {
+        if (customMessage?.trim()) {
             slackMessage += "\n${customMessage}"
         }
 
