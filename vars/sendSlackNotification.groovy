@@ -51,7 +51,7 @@ def call(Map config = [:]) {
         // Build message explicitly to ensure customMessage is appended properly
         def slackMessage = """\
             *${emojiMap[status] ?: status}*
-            *Project:* `${jobName}`
+            *Project testing:* `${jobName}`
             *Commit:* `${commitSha}`
             *Build Number:* #${buildNumber}
             *Branch:* `${branch}`
