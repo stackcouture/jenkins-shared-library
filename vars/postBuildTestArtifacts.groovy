@@ -27,5 +27,19 @@ def call(String reportName = 'Test Report', String reportFilePattern = 'surefire
         } else {
             echo "No HTML test report found matching: ${reportDir}/**/${reportFilePattern}"
         }
+
+        def jacocoHtmlDir = 'target/site/jacoco'
+        if (fileExists("${jacocoHtmlDir}/index.html")) {
+            publishHTML([
+                reportName: 'Code Coverage (JaCoCo)',
+                reportDir: jacocoHtmlDir,
+                reportFiles: 'index.html',
+                keepAll: true,
+                alwaysLinkToLastBuild: true,
+                allowMissing: true
+            ])
+        } else {
+            echo "No JaCoCo HTML report found at: ${jacocoHtmlDir}/index.html"
+        }
     }
 }

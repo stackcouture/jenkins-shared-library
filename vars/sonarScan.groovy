@@ -5,6 +5,7 @@ def call(Map config = [:]) {
     def exclusions = config.exclusions ?: '**/*.js'
     def scannerTool = config.scannerTool ?: 'sonar-scanner'
     def sonarEnv = config.sonarEnv ?: 'sonar-server'
+    def jacocoReportPath = config.jacocoReportPath ?: 'target/site/jacoco/jacoco.xml'
 
     env.SONAR_PROJECT_KEY = projectKey
 
@@ -24,7 +25,8 @@ def call(Map config = [:]) {
                     -Dsonar.projectKey="${projectKey}" \\
                     -Dsonar.java.binaries="${binaries}" \\
                     -Dsonar.sources="${sources}" \\
-                    -Dsonar.exclusions="${exclusions}"
+                    -Dsonar.exclusions="${exclusions}" \\
+                    -Dsonar.coverage.jacoco.xmlReportPaths="${jacocoReportPath}"
             """
         }
     }
