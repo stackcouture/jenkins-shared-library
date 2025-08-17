@@ -6,14 +6,14 @@ def call(Map config = [:]) {
 
     def leakCount = config.leakCount ?: 0
     def reportUrl = config.reportUrl ?: ""
-    def isGitleaks = config.isGitleaksNotification?.toString() == 'true'
+    def isGitleaks = config.isGitleaksNotification?.toString()?.toLowerCase() == 'true'
 
     def effectiveStatus = baseStatus
     def effectiveColor = baseColor
     def customMessage = ""
     def isGitleaksOnly = false
 
-    // Get secrets from AWS
+    // Retrieve Slack token from AWS Secrets Manager
     def secrets
     try {
         secrets = getAwsSecret(secretName, 'ap-south-1')
@@ -30,7 +30,7 @@ def call(Map config = [:]) {
         ABORTED : "🛑 Deployment Aborted!"
     ]
 
-    // If Gitleaks scan triggered this notification
+    // Handle Gitleaks scan notification
     if (isGitleaks) {
         isGitleaksOnly = true
         if (leakCount == 0) {
@@ -67,10 +67,10 @@ def call(Map config = [:]) {
 *Triggered By:* ${triggeredBy} 👤
 *Build Link:* <${buildUrl}|Click to view in Jenkins>
 """.stripIndent()
-        }
 
-        if (customMessage?.trim() && !isGitleaksOnly) {
-            slackMessage += "\n${customMessage}"
+            if (customMessage?.trim()) {
+                slackMessage += "\n${customMessage}"
+            }
         }
 
         slackMessage += "\n_This is an automated notification from Jenkins 🤖_"
