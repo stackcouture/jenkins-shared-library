@@ -13,6 +13,11 @@ def call(Map config = [:]) {
     def customMessage = ""
     def isGitleaksOnly = false
 
+    println "[DEBUG] isGitleaksNotification (raw): ${config.isGitleaksNotification}"
+    println "[DEBUG] isGitleaks (parsed): ${isGitleaks}"
+    println "[DEBUG] leakCount: ${leakCount}"
+    println "[DEBUG] reportUrl: ${reportUrl}"
+
     // Retrieve Slack token from AWS Secrets Manager
     def secrets
     try {
@@ -32,7 +37,7 @@ def call(Map config = [:]) {
 
     // Handle Gitleaks scan notification
     if (isGitleaks) {
-        echo "leaks found"
+       
         isGitleaksOnly = true
         if (leakCount == 0) {
             customMessage = "✅ *Gitleaks Scan Result:* No secrets found in the scanned commit."
