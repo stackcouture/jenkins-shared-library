@@ -21,7 +21,6 @@ def call(String reportName = 'Test Report', String reportFilePattern = 'surefire
                 <p><a href="./${junitRelPath}">View Test Report</a></p>
               </div>
             """
-            addBackLink(resolved[0].path)
         }
 
         // JaCoCo
@@ -33,7 +32,6 @@ def call(String reportName = 'Test Report', String reportFilePattern = 'surefire
                 <p><a href="./jacoco/index.html">View Coverage Report</a></p>
               </div>
             """
-            addBackLink(jacocoPath)
         }
 
         // Javadoc
@@ -45,7 +43,6 @@ def call(String reportName = 'Test Report', String reportFilePattern = 'surefire
                 <p><a href="./apidocs/index.html">View API Docs</a></p>
               </div>
             """
-            addBackLink(javadocPath)
         }
 
         // Write CSS
