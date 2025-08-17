@@ -4,6 +4,10 @@ def call(Map config = [:]) {
     def secretName = config.secretName ?: error("Missing 'secretName'")
     def slackChannel = config.channel ?: "#app-demo" // You can override this via config
 
+     // Additional optional info for Gitleaks
+    def leakCount = config.leakCount ?: 0
+    def reportUrl = config.reportUrl ?: ""
+
     // Get secrets from AWS
     def secrets
     try {
@@ -20,6 +24,20 @@ def call(Map config = [:]) {
         UNSTABLE: "⚠️ Unstable Deployment!",
         ABORTED : "🛑 Deployment Aborted!"
     ]
+
+     // Custom message for Gitleaks scan
+    def customMessage = ""
+    if (config.isGitleaksNotification == true) {
+        if (leakCount == 0) {
+            customMessage = "✅ *Gitleaks Scan Result:* No secrets found in the scanned commit."
+        } else {
+            customMessage = "⚠️ *Gitleaks Scan Result:* Found *${leakCount}* potential secret(s)!\n" +
+                            "*Report:* <${reportUrl}|Click here to view>"
+            // Override status and color for Gitleaks
+            status = leakCount > 0 ? 'FAILURE' : 'SUCCESS'
+            color = leakCount > 0 ? 'danger' : 'good'
+        }
+    }
 
     // Wrap to access BUILD_USER info
     wrap([$class: 'BuildUser']) {
@@ -42,6 +60,7 @@ def call(Map config = [:]) {
                 *Branch:* `${branch}`
                 *Triggered By:* ${triggeredBy} 👤
                 *Build Link:* <${buildUrl}|Click to view in Jenkins>
+                ${customMessage ? "\n${customMessage}" : ""}
                 _This is an automated notification from Jenkins 🤖_
                 """.stripIndent().trim()
         )
