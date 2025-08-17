@@ -1,14 +1,12 @@
 def call(Map config = [:]) {
-    def color = config.color ?: '#36a64f'
-    def status = (config.status ?: error("Missing 'status'")).toUpperCase()
+    def baseColor = config.color ?: '#36a64f'
+    def baseStatus = (config.status ?: error("Missing 'status'")).toUpperCase()
     def secretName = config.secretName ?: error("Missing 'secretName'")
-    def slackChannel = config.channel ?: "#app-demo" // You can override this via config
+    def slackChannel = config.channel ?: "#app-demo"
 
-    // Additional optional info for Gitleaks
     def leakCount = config.leakCount ?: 0
     def reportUrl = config.reportUrl ?: ""
 
-    // Get secrets from AWS
     def secrets
     try {
         secrets = getAwsSecret(secretName, 'ap-south-1')
@@ -25,21 +23,23 @@ def call(Map config = [:]) {
         ABORTED : "🛑 Deployment Aborted!"
     ]
 
-    // Custom message for Gitleaks scan
+    def effectiveStatus = baseStatus
+    def effectiveColor = baseColor
     def customMessage = ""
+
     if (config.isGitleaksNotification == true) {
         if (leakCount == 0) {
             customMessage = "✅ *Gitleaks Scan Result:* No secrets found in the scanned commit."
+            effectiveStatus = 'SUCCESS'
+            effectiveColor = 'good'
         } else {
             customMessage = "⚠️ *Gitleaks Scan Result:* Found *${leakCount}* potential secret(s)!\n" +
                             "*Report:* <${reportUrl}|Click here to view>"
-            // Override status and color for Gitleaks
-            status = leakCount > 0 ? 'FAILURE' : 'SUCCESS'
-            color = leakCount > 0 ? 'danger' : 'good'
+            effectiveStatus = 'FAILURE'
+            effectiveColor = 'danger'
         }
     }
 
-    // Wrap to access BUILD_USER info
     wrap([$class: 'BuildUser']) {
         def triggeredBy = env.BUILD_USER_ID ?: "Automated"
         def commitSha = env.COMMIT_SHA ?: "N/A"
@@ -48,9 +48,8 @@ def call(Map config = [:]) {
         def buildNumber = env.BUILD_NUMBER ?: "N/A"
         def branch = params.BRANCH ?: env.GIT_BRANCH ?: "N/A"
 
-        // Build message explicitly to ensure customMessage is appended properly
         def slackMessage = """\
-            *${emojiMap[status] ?: status}*
+            *${emojiMap[effectiveStatus] ?: effectiveStatus}*
             *Project testing:* `${jobName}`
             *Commit:* `${commitSha}`
             *Build Number:* #${buildNumber}
@@ -68,7 +67,7 @@ def call(Map config = [:]) {
         slackSend(
             channel: slackChannel,
             token: slackToken,
-            color: color,
+            color: effectiveColor,
             message: slackMessage
         )
     }
