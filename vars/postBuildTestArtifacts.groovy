@@ -11,19 +11,6 @@ def call(String reportName = 'Test Report', String reportFilePattern = 'surefire
         def cards = []
         def reportDir = 'target/site'
 
-        // Helper function to prepend Back to Dashboard link
-        def addBackLink = { reportPath ->
-            if (fileExists(reportPath)) {
-                def content = readFile(reportPath)
-                // Insert back link after <body> tag
-                content = content.replaceFirst(
-                    /<body[^>]*>/,
-                    '<body>\n<p><a href="./reports-dashboard.html">⬅ Back to Dashboard</a></p>'
-                )
-                writeFile(file: reportPath, text: content)
-            }
-        }
-
         // JUnit
         def resolved = findFiles(glob: "${reportDir}/**/${reportFilePattern}")
         if (resolved.length > 0) {
