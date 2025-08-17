@@ -32,6 +32,7 @@ def call(Map config = [:]) {
 
     // Handle Gitleaks scan notification
     if (isGitleaks) {
+        echo "leaks found"
         isGitleaksOnly = true
         if (leakCount == 0) {
             customMessage = "✅ *Gitleaks Scan Result:* No secrets found in the scanned commit."
@@ -43,6 +44,8 @@ def call(Map config = [:]) {
             effectiveStatus = 'FAILURE'
             effectiveColor = 'danger'
         }
+    }else {
+        echo "No leaks found"
     }
 
     wrap([$class: 'BuildUser']) {
