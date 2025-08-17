@@ -27,7 +27,7 @@ def call(Map config = [:]) {
     def effectiveColor = baseColor
     def customMessage = ""
 
-    if (config.isGitleaksNotification == true) {
+    if (config.isGitleaksNotification?.toString().toBoolean()) {
         if (leakCount == 0) {
             customMessage = "✅ *Gitleaks Scan Result:* No secrets found in the scanned commit."
             effectiveStatus = 'SUCCESS'
