@@ -41,5 +41,19 @@ def call(String reportName = 'Test Report', String reportFilePattern = 'surefire
         } else {
             echo "No JaCoCo HTML report found at: ${jacocoHtmlDir}/index.html"
         }
+
+        def javadocDir = 'target/site/apidocs'
+        if (fileExists("${javadocDir}/index.html")) {
+            publishHTML([
+                reportName: 'API Documentation (Javadoc)',
+                reportDir: javadocDir,
+                reportFiles: 'index.html',
+                keepAll: true,
+                alwaysLinkToLastBuild: true,
+                allowMissing: true
+            ])
+        } else {
+            echo "No Javadoc HTML report found at: ${javadocDir}/index.html"
+        }
     }
 }
