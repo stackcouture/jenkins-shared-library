@@ -8,9 +8,21 @@ def call(String reportName = 'Test Report', String reportFilePattern = 'surefire
             echo "No test results found."
         }
 
-        // Collect cards
         def cards = []
         def reportDir = 'target/site'
+
+        // Helper function to prepend Back to Dashboard link
+        def addBackLink = { reportPath ->
+            if (fileExists(reportPath)) {
+                def content = readFile(reportPath)
+                // Insert back link after <body> tag
+                content = content.replaceFirst(
+                    /<body[^>]*>/,
+                    '<body>\n<p><a href="./reports-dashboard.html">⬅ Back to Dashboard</a></p>'
+                )
+                writeFile(file: reportPath, text: content)
+            }
+        }
 
         // JUnit
         def resolved = findFiles(glob: "${reportDir}/**/${reportFilePattern}")
@@ -19,32 +31,37 @@ def call(String reportName = 'Test Report', String reportFilePattern = 'surefire
             cards << """
               <div class="card junit">
                 <h2>JUnit Test Report</h2>
-                <p><a href="./${junitRelPath}" target="_blank">View Test Report</a></p>
+                <p><a href="./${junitRelPath}">View Test Report</a></p>
               </div>
             """
+            addBackLink(resolved[0].path)
         }
 
         // JaCoCo
-        if (fileExists("${reportDir}/jacoco/index.html")) {
+        def jacocoPath = "${reportDir}/jacoco/index.html"
+        if (fileExists(jacocoPath)) {
             cards << """
               <div class="card jacoco">
                 <h2>JaCoCo Coverage</h2>
-                <p><a href="./jacoco/index.html" target="_blank">View Coverage Report</a></p>
+                <p><a href="./jacoco/index.html">View Coverage Report</a></p>
               </div>
             """
+            addBackLink(jacocoPath)
         }
 
         // Javadoc
-        if (fileExists("${reportDir}/apidocs/index.html")) {
+        def javadocPath = "${reportDir}/apidocs/index.html"
+        if (fileExists(javadocPath)) {
             cards << """
               <div class="card javadoc">
                 <h2>API Documentation (Javadoc)</h2>
-                <p><a href="./apidocs/index.html" target="_blank">View API Docs</a></p>
+                <p><a href="./apidocs/index.html">View API Docs</a></p>
               </div>
             """
+            addBackLink(javadocPath)
         }
 
-        // Write CSS into a separate file (external, not inline!)
+        // Write CSS
         def cssContent = """
         body {
           font-family: Arial, sans-serif;
@@ -87,7 +104,7 @@ def call(String reportName = 'Test Report', String reportFilePattern = 'surefire
         """
         writeFile file: "${reportDir}/styles.css", text: cssContent
 
-        // Build HTML linking the CSS file
+        // Dashboard HTML
         def htmlContent = """
         <!DOCTYPE html>
         <html lang="en">
