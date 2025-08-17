@@ -6,8 +6,12 @@ def call(Map config = [:]) {
 
     def leakCount = config.leakCount ?: 0
     def reportUrl = config.reportUrl ?: ""
-
     def isGitleaks = config.isGitleaksNotification?.toString() == 'true'
+
+    def effectiveStatus = baseStatus
+    def effectiveColor = baseColor
+    def customMessage = ""
+    def isGitleaksOnly = false
 
     // Get secrets from AWS
     def secrets
@@ -26,15 +30,9 @@ def call(Map config = [:]) {
         ABORTED : "🛑 Deployment Aborted!"
     ]
 
-    def effectiveStatus = baseStatus
-    def effectiveColor = baseColor
-    def customMessage = ""
-
-    println "[DEBUG] isGitleaks: ${isGitleaks}"
-    println "[DEBUG] leakCount: ${leakCount}"
-    println "[DEBUG] reportUrl: ${reportUrl}"
-
+    // If Gitleaks scan triggered this notification
     if (isGitleaks) {
+        isGitleaksOnly = true
         if (leakCount == 0) {
             customMessage = "✅ *Gitleaks Scan Result:* No secrets found in the scanned commit."
             effectiveStatus = 'SUCCESS'
@@ -55,7 +53,12 @@ def call(Map config = [:]) {
         def buildNumber = env.BUILD_NUMBER ?: "N/A"
         def branch = params.BRANCH ?: env.GIT_BRANCH ?: "N/A"
 
-        def slackMessage = """\
+        def slackMessage = ""
+
+        if (isGitleaksOnly) {
+            slackMessage = customMessage + "\n"
+        } else {
+            slackMessage = """\
 *${emojiMap[effectiveStatus] ?: effectiveStatus}*
 *Project:* `${jobName}`
 *Commit:* `${commitSha}`
@@ -64,8 +67,9 @@ def call(Map config = [:]) {
 *Triggered By:* ${triggeredBy} 👤
 *Build Link:* <${buildUrl}|Click to view in Jenkins>
 """.stripIndent()
+        }
 
-        if (customMessage?.trim()) {
+        if (customMessage?.trim() && !isGitleaksOnly) {
             slackMessage += "\n${customMessage}"
         }
 
