@@ -8,7 +8,7 @@ def call(Map config = [:]) {
     def reportUrl = config.reportUrl ?: ""
 
     // Safely handle Gitleaks flag
-    def isGitleaks = (config.isGitleaksNotification ?: false).toString().toBoolean()
+    def isGitleaks = config.isGitleaksNotification == true
 
     // Get secrets from AWS
     def secrets
@@ -30,6 +30,10 @@ def call(Map config = [:]) {
     def effectiveStatus = baseStatus
     def effectiveColor = baseColor
     def customMessage = ""
+
+    println "[DEBUG] isGitleaks: ${isGitleaks}"
+    println "[DEBUG] leakCount: ${leakCount}"
+    println "[DEBUG] reportUrl: ${reportUrl}"
 
     if (isGitleaks) {
         if (leakCount == 0) {
