@@ -11,4 +11,11 @@ def call(Map config = [:]) {
         docker tag ${ecrRepoName}:${imageTag} ${fullTag}
         docker push ${fullTag}
     """
+
+    // Fetch digest for digest-based signing
+    def digest = sh(script: """
+        aws ecr describe-images --repository-name ${ecrRepoName} --image-ids imageTag=${imageTag} --query 'imageDetails[0].imageDigest' --output text
+    """, returnStdout: true).trim()
+
+    return "${awsAccountId}.dkr.ecr.${region}.amazonaws.com/${ecrRepoName}@${digest}"
 }
