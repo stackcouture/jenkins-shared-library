@@ -7,8 +7,7 @@ def call(Map config = [:]) {
     def leakCount = config.leakCount ?: 0
     def reportUrl = config.reportUrl ?: ""
 
-    // Safely handle Gitleaks flag
-    def isGitleaks = config.isGitleaksNotification == true
+    def isGitleaks = config.isGitleaksNotification?.toString() == 'true'
 
     // Get secrets from AWS
     def secrets
