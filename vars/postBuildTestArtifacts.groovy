@@ -19,7 +19,7 @@ def call(String reportName = 'Test Report', String reportFilePattern = 'surefire
             cards << """
               <div class="card junit">
                 <h2>JUnit Test Report</h2>
-                <p><a href="${junitRelPath}" target="_blank">View Test Report</a></p>
+                <p><a href="./${junitRelPath}" target="_blank">View Test Report</a></p>
               </div>
             """
         }
@@ -29,7 +29,7 @@ def call(String reportName = 'Test Report', String reportFilePattern = 'surefire
             cards << """
               <div class="card jacoco">
                 <h2>JaCoCo Coverage</h2>
-                <p><a href="jacoco/index.html" target="_blank">View Coverage Report</a></p>
+                <p><a href="./jacoco/index.html" target="_blank">View Coverage Report</a></p>
               </div>
             """
         }
@@ -39,7 +39,7 @@ def call(String reportName = 'Test Report', String reportFilePattern = 'surefire
             cards << """
               <div class="card javadoc">
                 <h2>API Documentation (Javadoc)</h2>
-                <p><a href="apidocs/index.html" target="_blank">View API Docs</a></p>
+                <p><a href="./apidocs/index.html" target="_blank">View API Docs</a></p>
               </div>
             """
         }
@@ -94,7 +94,7 @@ def call(String reportName = 'Test Report', String reportFilePattern = 'surefire
         <head>
           <meta charset="UTF-8">
           <title>📊 Project Reports Dashboard</title>
-          <link rel="stylesheet" href="styles.css">
+          <link rel="stylesheet" href="./styles.css">
         </head>
         <body>
           <h1>📊 Project Reports Dashboard</h1>
