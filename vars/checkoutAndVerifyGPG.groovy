@@ -23,22 +23,22 @@ def call(Map config = [:]) {
             def resolvedCommit = commitSha ?: sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
             env.COMMIT_SHA = resolvedCommit
 
-            echo "Checked out commit: ${env.COMMIT_SHA}"
+            echo "Checked out commit: ${env.COMMIT_SHA.take(8)}"
 
             def verifyStatus = sh(
-                script: "git verify-commit ${env.COMMIT_SHA}",
+                script: "git verify-commit ${env.COMMIT_SHA.take(8)}",
                 returnStatus: true
             )
 
             if (verifyStatus != 0) {
-                error "GPG signature verification failed for commit ${env.COMMIT_SHA}!"
+                error "GPG signature verification failed for commit ${env.COMMIT_SHA.take(8)}!"
             } else {
                 echo "GPG signature verification passed."
             }
 
             // Fix: Use double quotes around %Gg for proper git formatting
             def commitKey = sh(
-                script: "git log -1 --format=\"%Gg\" ${env.COMMIT_SHA}",
+                script: "git log -1 --format=\"%Gg\" ${env.COMMIT_SHA.take(8)}",
                 returnStdout: true
             ).trim()
 

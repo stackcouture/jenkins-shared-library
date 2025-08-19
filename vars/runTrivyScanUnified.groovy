@@ -5,12 +5,12 @@ def call(String stageName, String scanTarget, String scanType) {
 
     def reportDir = "reports/trivy/${env.BUILD_NUMBER}/${stageName}"
     def htmlReport = scanType == 'fs' 
-        ? "${reportDir}/trivy-fs-scan-${env.COMMIT_SHA}.html"
-        : "${reportDir}/trivy-image-scan-${env.COMMIT_SHA}.html"
+        ? "${reportDir}/trivy-fs-scan-${env.COMMIT_SHA.take(8)}.html"
+        : "${reportDir}/trivy-image-scan-${env.COMMIT_SHA.take(8)}.html"
 
     def jsonReport = scanType == 'fs' 
-        ? "${reportDir}/trivy-fs-scan-${env.COMMIT_SHA}.json"
-        : "${reportDir}/trivy-image-scan-${env.COMMIT_SHA}.json"
+        ? "${reportDir}/trivy-fs-scan-${env.COMMIT_SHA.take(8)}.json"
+        : "${reportDir}/trivy-image-scan-${env.COMMIT_SHA.take(8)}.json"
 
     sh """
         set -e

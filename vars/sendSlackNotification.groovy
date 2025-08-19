@@ -24,7 +24,7 @@ def call(Map config = [:]) {
     // Wrap to access BUILD_USER info
     wrap([$class: 'BuildUser']) {
         def triggeredBy = env.BUILD_USER_ID ?: "Automated"
-        def commitSha = env.COMMIT_SHA ?: "N/A"
+        def commitSha = env.COMMIT_SHA.take(8) ?: "N/A"
         def buildUrl = env.BUILD_URL ?: "#"
         def jobName = env.JOB_NAME ?: "N/A"
         def buildNumber = env.BUILD_NUMBER ?: "N/A"
