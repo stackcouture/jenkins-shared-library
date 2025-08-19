@@ -8,15 +8,12 @@ def call(Map config = [:]) {
     withCredentials([file(credentialsId: gpgCredentialsId, variable: 'GPG_KEY1')]) {
 
         echo "Importing GPG key..."
-        // Fix quoting so shell expands the variable properly
-        sh "gpg --batch --import $GPG_KEY1"
+        sh(script: 'gpg --batch --import "$GPG_KEY1"')
 
         try {
             echo "Starting Git checkout..."
-            // Assuming checkoutGit handles git clone/fetch + checkout branch + credentials
             checkoutGit(branch, gitUrl, secretPath)
 
-            // If commitSha provided, checkout that commit explicitly
             if (commitSha) {
                 echo "Checking out specific commit ${commitSha}"
                 sh "git checkout ${commitSha}"
@@ -39,7 +36,7 @@ def call(Map config = [:]) {
             }
 
             def commitKey = sh(
-                script: "git log -1 --format='%Gg' ${env.COMMIT_SHA}",
+                script: "git log -1 --format=\"%Gg\" ${env.COMMIT_SHA}",
                 returnStdout: true
             ).trim()
 
@@ -51,8 +48,7 @@ def call(Map config = [:]) {
             error("Stopping pipeline due to checkout failure")
         } finally {
             echo "Cleaning up imported GPG key..."
-            // Fix quoting here as well
-            sh "rm -f $GPG_KEY1"
+            sh(script: 'rm -f "$GPG_KEY1"')
         }
     }
 }
