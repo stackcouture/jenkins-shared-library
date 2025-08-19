@@ -2,10 +2,17 @@
 def call(String gitBranch, String gitUrl, String secretName) {
     echo "Fetching AWS secrets..."
     def secrets = getAwsSecret(secretName, 'ap-south-1')
-    if (secrets == null || !secrets.github_pat) {
-        error("Failed to retrieve GitHub PAT from AWS secrets")
+
+    if (secrets == null) {
+        error("Failed to retrieve secrets from AWS for path: ${secretName}")
     }
+    if (!secrets.github_pat) {
+        error("GitHub PAT not found in AWS secrets at path: ${secretName}")
+    }
+
     def credentialsId = secrets.github_pat
+
+    echo "Checking out branch '${gitBranch}' from '${gitUrl}' using provided credentials."
 
     checkout([
         $class: 'GitSCM',

@@ -5,10 +5,11 @@ def call(Map config = [:]) {
     def gpgCredentialsId = config.gpgCredentialsId
     def secretPath = config.secretPath
 
-    withCredentials([file(credentialsId: gpgCredentialsId, variable: 'GPG_KEY1')]) {
+    withCredentials([file(credentialsId: gpgCredentialsId, variable: 'GPG_KEY_FILE')]) {
 
         echo "Importing GPG key..."
-        sh(script: 'gpg --batch --import "$GPG_KEY1"')
+        // Use single quotes in Groovy string and double quotes in shell to avoid interpolation warnings
+        sh(script: 'gpg --batch --import "$GPG_KEY_FILE"')
 
         try {
             echo "Starting Git checkout..."
@@ -35,6 +36,7 @@ def call(Map config = [:]) {
                 echo "GPG signature verification passed."
             }
 
+            // Fix: Use double quotes around %Gg for proper git formatting
             def commitKey = sh(
                 script: "git log -1 --format=\"%Gg\" ${env.COMMIT_SHA}",
                 returnStdout: true
@@ -48,7 +50,7 @@ def call(Map config = [:]) {
             error("Stopping pipeline due to checkout failure")
         } finally {
             echo "Cleaning up imported GPG key..."
-            sh(script: 'rm -f "$GPG_KEY1"')
+            sh(script: 'rm -f "$GPG_KEY_FILE"')
         }
     }
 }
