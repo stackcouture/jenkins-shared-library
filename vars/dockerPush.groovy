@@ -8,7 +8,7 @@ def call(Map config = [:]) {
     def fullTag = "${awsAccountId}.dkr.ecr.${region}.amazonaws.com/${ecrRepoName}:${imageTag}"
 
     sh """  
-        docker tag ${imageTag} ${fullTag}
+        docker tag ${ecrRepoName}:${imageTag} ${fullTag}
         docker push ${fullTag}
     """
 }
