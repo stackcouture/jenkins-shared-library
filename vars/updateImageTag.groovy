@@ -4,13 +4,17 @@ def call(Map config = [:]) {
     def secretName = config.secretName ?: error("Missing 'secretName'")
     def repoUrl = "https://github.com/stackcouture/Java-WebAPP-CD"
     def repoDir = "Java-WebAPP-CD"
+    def ecrRepoName = config.ecrRepoName
+    def region = config.region
+    def cosignPassword = config.cosignPassword
+    def awsAccountId = config.awsAccountId
 
     // Verify the image is signed before proceeding
     def isSigned = cosignVerifyECR(
         imageTag: imageTag,
-        ecrRepoName: params.ECR_REPO_NAME,
-        region: params.REGION,
-        awsAccountId: params.AWS_ACCOUNT_ID
+        ecrRepoName: ecrRepoName,
+        region: region,
+        awsAccountId: awsAccountId
     )
 
     if (!isSigned) {
@@ -19,7 +23,7 @@ def call(Map config = [:]) {
 
     // Fetch the image digest from ECR if the image is signed
     def imageDigest = sh(script: """
-        aws ecr describe-images --repository-name ${params.ECR_REPO_NAME} --image-ids imageTag=${imageTag} --region ${params.REGION} --query 'imageDetails[0].imageDigest' --output text
+        aws ecr describe-images --repository-name ${ecrRepoName} --image-ids imageTag=${imageTag} --region ${region} --query 'imageDetails[0].imageDigest' --output text
     """, returnStdout: true).trim()
 
     echo "Image digest for ${imageTag} is: ${imageDigest}"
