@@ -16,21 +16,33 @@ def call(Map config = [:]) {
                 awsAccountId: awsAccountId
             )
 
-            // If the image is not signed, sign it
             if (!isSigned) {
                 echo "Image is not signed. Proceeding with signing..."
+
                 def imageDigest = sh(script: """
                     aws ecr describe-images --repository-name ${ecrRepoName} --image-ids imageTag=${imageTag} --region ${region} --query 'imageDetails[0].imageDigest' --output text
                 """, returnStdout: true).trim()
 
+                if (imageDigest == "") {
+                    error("Failed to retrieve image digest from ECR for imageTag: ${imageTag}")
+                }
+
                 def imageRef = "${awsAccountId}.dkr.ecr.${region}.amazonaws.com/${ecrRepoName}@${imageDigest}"
 
-                // Sign the image using Cosign
-                sh """
-                    export COSIGN_PASSWORD=${cosignPassword}
-                    cosign sign --key $COSIGN_KEY --upload --yes ${imageRef}
-                """
-                echo "Image signed successfully."
+                try {
+                    echo "Signing image ${imageRef}..."
+
+                    retry(3) {
+                        sh """
+                            export COSIGN_PASSWORD=${cosignPassword}
+                            cosign sign --key $COSIGN_KEY --upload --yes ${imageRef}
+                        """
+                    }
+
+                    echo "Image signed successfully."
+                } catch (Exception e) {
+                    error("Cosign signing failed after 3 attempts: ${e.message}")
+                }
             } else {
                 echo "Image is already signed. Skipping signing process."
             }
