@@ -1,9 +1,6 @@
-//def call(String stageName, String scanTarget, String scanType) {
-
-def call(Map config = [:]) {
-
+def runTrivyScan(Map config = [:]) {
     def stageName = config.stageName ?: error("Missing 'stageName'")
-    def scanTarget = config.scanTarget ?: error("Missing 'imageTag'")
+    def scanTarget = config.scanTarget ?: error("Missing 'scanTarget'")
     def scanType = config.scanType ?: error("Missing 'scanType'")
     def fileName = config.fileName
 
