@@ -1,4 +1,4 @@
-def cosignVerifyECR(Map config = [:]) {
+def call(Map config = [:]) {
     def imageTag = config.imageTag
     def ecrRepoName = config.ecrRepoName
     def region = config.region
