@@ -5,8 +5,8 @@ def call(Map config = [:]) {
     def secretName = config.secretName ?: error("Missing 'secretName'")
 
     def reportDir = "reports/snyk/${env.BUILD_NUMBER}/${stageName}"
-    def jsonFile = "${reportDir}/snyk-report-${env.COMMIT_SHA.take(8)}.json"
-    def htmlFile = "${reportDir}/snyk-report-${env.COMMIT_SHA.take(8)}.html"
+    def jsonFile = "${reportDir}/snyk-report-${env.COMMIT_SHA}.json"
+    def htmlFile = "${reportDir}/snyk-report-${env.COMMIT_SHA}.html"
 
     def secrets = getAwsSecret(secretName, 'ap-south-1')
     def SNYK_TOKEN = secrets.SNYK_TOKEN

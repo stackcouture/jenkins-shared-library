@@ -1,5 +1,5 @@
 def call(Map config = [:]) {
-    def imageTag = config.imageTag ?: env.COMMIT_SHA.take(8) ?: error("Missing 'imageTag' and 'COMMIT_SHA' env var")
+    def imageTag = config.imageTag ?: env.COMMIT_SHA ?: error("Missing 'imageTag' and 'COMMIT_SHA' env var")
     def repoName = config.repoName ?: error("Missing 'repoName'")
     def awsAccountId = config.awsAccountId ?: error("Missing 'awsAccountId'")
     def region = config.region ?: env.REGION ?: 'ap-south-1'
