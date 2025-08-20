@@ -1,16 +1,25 @@
-def call(String stageName, String scanTarget, String scanType) {
+//def call(String stageName, String scanTarget, String scanType) {
+
+def call(Map config = [:]) {
+
+    def stageName = config.stageName ?: error("Missing 'stageName'")
+    def scanTarget = config.scanTarget ?: error("Missing 'imageTag'")
+    def scanType = config.scanType ?: error("Missing 'scanType'")
+    def fileName = config.fileName
+
     if (!['image', 'fs'].contains(scanType)) {
         error("Invalid scanType: ${scanType}. Allowed values are 'image' or 'fs'.")
     }
 
     def reportDir = "reports/trivy/${env.BUILD_NUMBER}/${stageName}"
+
     def htmlReport = scanType == 'fs' 
-        ? "${reportDir}/trivy-fs-scan-${env.COMMIT_SHA.take(8)}.html"
-        : "${reportDir}/trivy-image-scan-${env.COMMIT_SHA.take(8)}.html"
+        ? "${reportDir}/trivy-fs-scan-${fileName}.html"
+        : "${reportDir}/trivy-image-scan-${fileName}.html"
 
     def jsonReport = scanType == 'fs' 
-        ? "${reportDir}/trivy-fs-scan-${env.COMMIT_SHA.take(8)}.json"
-        : "${reportDir}/trivy-image-scan-${env.COMMIT_SHA.take(8)}.json"
+        ? "${reportDir}/trivy-fs-scan-${fileName}.json"
+        : "${reportDir}/trivy-image-scan-${fileName}.json"
 
     sh """
         set -e
