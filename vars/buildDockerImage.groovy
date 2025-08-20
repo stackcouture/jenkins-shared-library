@@ -1,3 +1,3 @@
 def call(String imageTag) {
-    sh "docker build -t ${imageTag} ."
+    sh "docker build --no-cache -t ${imageTag} ."
 }
