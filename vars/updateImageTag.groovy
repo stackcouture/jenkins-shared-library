@@ -1,5 +1,5 @@
 def call(Map config = [:]) {
-    def imageTag = config.imageTag ?: "${env.COMMIT_SHA}-${env.BUILD_NUMBER}"
+    def imageTag = config.imageTag ?: "${env.COMMIT_SHA}"
     def branch = 'main'
     def secretName = config.secretName ?: error("Missing 'secretName'")
     def repoUrl = "https://github.com/stackcouture/Java-WebAPP-CD"
