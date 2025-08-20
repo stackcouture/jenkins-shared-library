@@ -5,7 +5,7 @@ def call(Map config = [:]) {
     def awsAccountId = config.awsAccountId ?: error("Missing 'awsAccountId'")
     def region = config.region ?: error("Missing 'region'")
 
-    def fullTag = "${awsAccountId}.dkr.ecr.${region}.amazonaws.com/${imageTag}"
+    def fullTag = "${awsAccountId}.dkr.ecr.${region}.amazonaws.com/${ecrRepoName}:${imageTag}"
 
     sh """  
         docker tag ${imageTag} ${fullTag}
