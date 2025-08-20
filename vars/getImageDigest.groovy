@@ -1,8 +1,8 @@
-def getImageDigest(Map params) {
-    def ecrRepoName = params.ecrRepoName
-    def imageTag = params.imageTag
-    def region = params.region
-
+def call(Map config = [:]) {
+    def ecrRepoName = config.ecrRepoName
+    def imageTag = config.imageTag
+    def region = config.region
+    
     def command = """
         aws ecr batch-get-image \
             --repository-name ${ecrRepoName} \
