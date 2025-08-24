@@ -9,6 +9,11 @@ def call(Map config = [:]) {
     def cosignPassword = config.cosignPassword
     def awsAccountId = config.awsAccountId
 
+    // Ensure imageTag is not null or empty
+    if (!imageTag) {
+        error "Missing 'imageTag'. Please provide a valid imageTag."
+    }
+
     // // Verify the image is signed before proceeding
     // def isSigned = cosignVerifyECR(
     //     imageTag: imageTag,
@@ -26,6 +31,10 @@ def call(Map config = [:]) {
         aws ecr describe-images --repository-name ${ecrRepoName} --image-ids imageTag=${imageTag} --region ${region} --query 'imageDetails[0].imageDigest' --output text
     """, returnStdout: true).trim()
 
+    if (!imageDigest) {
+        error "Could not fetch image digest for tag ${imageTag} in repository ${ecrRepoName}."
+    }
+
     echo "Image digest for ${imageTag} is: ${imageDigest}"
 
     def secrets = getAwsSecret(secretName, 'ap-south-1')
@@ -34,7 +43,7 @@ def call(Map config = [:]) {
     sh "rm -rf ${repoDir}"
 
     withEnv(["GIT_PAT=${gitToken}"]) {
-        retry(2) {
+        retry(3) {
             sh "git clone https://\$GIT_PAT@${repoUrl.replace('https://', '')} ${repoDir}"
         }
     }
@@ -59,17 +68,25 @@ def call(Map config = [:]) {
         }
 
         echo "Updating image tag from ${currentTag} to ${imageDigest}"
-        sh "sed -i 's/^ *tag:.*/tag: ${imageDigest}/' deploy/dev-values.yaml"
+        
+         // Fix indentation while replacing the 'tag'
+        sh """
+        sed -i '/^ *tag:/c\\
+        tag: ${imageDigest}
+        ' deploy/dev-values.yaml
+        """
 
+        // Commit the changes to Git
         sh 'git config user.email "stackcouture@gmail.com"'
         sh 'git config user.name "Naveen"'
         sh "git add deploy/dev-values.yaml"
         sh "git commit -m \"chore: update image tag to ${imageDigest}\""
 
         try {
+            // Push the changes back to the repository
             sh "git push origin ${branch}"
             echo "Tag update pushed with Image Tag: ${imageDigest}"
-        } catch (e) {
+        } catch (Exception e) {
             error("Failed to push tag update. Reason:\n${e.message}")
         }
     }
