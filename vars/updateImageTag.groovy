@@ -71,9 +71,7 @@ def call(Map config = [:]) {
         
          // Fix indentation while replacing the 'tag'
         sh """
-        sed -i '/^ *tag:/c\\
-        tag: ${imageDigest}
-        ' deploy/dev-values.yaml
+          sed -i '/^ *tag:/s/^ *tag:.*/  tag: ${imageDigest}/' deploy/dev-values.yaml
         """
 
         // Commit the changes to Git
