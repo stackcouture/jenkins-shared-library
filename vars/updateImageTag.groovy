@@ -51,33 +51,33 @@ def call(Map config = [:]) {
     dir(repoDir) {
         sh "git checkout ${branch}"
 
-        if (!fileExists("deploy/dev-values.yaml")) {
-            error("File deploy/dev-values.yaml not found in branch ${branch}")
+        if (!fileExists("helm-charts/springboot/values/dev-values.yaml")) {
+            error("File helm-charts/springboot/values/dev-values.yaml not found in branch ${branch}")
         }
 
         def currentTag = sh(
-            script: "grep '^ *tag:' deploy/dev-values.yaml | awk '{print \$2}'",
+            script: "grep '^ *tag:' helm-charts/springboot/values/dev-values.yaml | awk '{print \$2}'",
             returnStdout: true
         ).trim()
 
         echo "Current tag in values.yaml: ${currentTag}"
 
-        if (currentTag == imageDigest) {
+        if (currentTag == imageTag) {
             echo "Image tag is already up to date — skipping update and commit."
             return
         }
 
-        echo "Updating image tag from ${currentTag} to ${imageDigest}"
+        echo "Updating image tag from ${currentTag} to ${imageTag}"
         
          // Fix indentation while replacing the 'tag'
         sh """
-          sed -i '/^ *tag:/s/^ *tag:.*/  tag: ${imageDigest}/' deploy/dev-values.yaml
+          sed -i '/^ *tag:/s/^ *tag:.*/  tag: ${imageTag}/' helm-charts/springboot/values/dev-values.yaml
         """
 
         // Commit the changes to Git
         sh 'git config user.email "stackcouture@gmail.com"'
         sh 'git config user.name "Naveen"'
-        sh "git add deploy/dev-values.yaml"
+        sh "git add helm-charts/springboot/values/dev-values.yaml"
         sh "git commit -m \"chore: update image tag to ${imageTag}\""
 
         try {
