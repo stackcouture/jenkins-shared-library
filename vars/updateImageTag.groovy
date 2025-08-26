@@ -78,12 +78,12 @@ def call(Map config = [:]) {
         sh 'git config user.email "stackcouture@gmail.com"'
         sh 'git config user.name "Naveen"'
         sh "git add deploy/dev-values.yaml"
-        sh "git commit -m \"chore: update image tag to ${imageDigest}\""
+        sh "git commit -m \"chore: update image tag to ${imageTag}\""
 
         try {
             // Push the changes back to the repository
             sh "git push origin ${branch}"
-            echo "Tag update pushed with Image Tag: ${imageDigest}"
+            echo "Tag update pushed with Image Tag: ${imageTag}"
         } catch (Exception e) {
             error("Failed to push tag update. Reason:\n${e.message}")
         }
