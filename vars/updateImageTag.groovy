@@ -14,17 +14,17 @@ def call(Map config = [:]) {
         error "Missing 'imageTag'. Please provide a valid imageTag."
     }
 
-    // // Verify the image is signed before proceeding
-    // def isSigned = cosignVerifyECR(
-    //     imageTag: imageTag,
-    //     ecrRepoName: ecrRepoName,
-    //     region: region,
-    //     awsAccountId: awsAccountId
-    // )
+    // Verify the image is signed before proceeding
+    def isSigned = cosignVerifyECR(
+        imageTag: imageTag,
+        ecrRepoName: ecrRepoName,
+        region: region,
+        awsAccountId: awsAccountId
+    )
 
-    // if (!isSigned) {
-    //     error "Image ${imageTag} is not signed. Skipping deployment."
-    // }
+    if (!isSigned) {
+        error "Image ${imageTag} is not signed. Skipping deployment."
+    }
 
     // Fetch the image digest from ECR if the image is signed
     def imageDigest = sh(script: """
