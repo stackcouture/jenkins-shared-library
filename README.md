@@ -77,3 +77,40 @@ Scripts are grouped by functionality for easier navigation.
 ```groovy
 @Library('my-shared-library') _
 
+## Example Pipeline (Groovy)
+
+
+```groovy
+pipeline {
+    agent any
+    stages {
+        stage('Build') {
+            steps {
+                buildDockerImage('my-app', 'latest')
+                cleanupDockerImages()
+            }
+        }
+        stage('Security Scan') {
+            steps {
+                runTrivyScanUnified()
+                runSnykScan()
+                runGptSecuritySummary()
+            }
+        }
+        stage('Deploy') {
+            steps {
+                deployApp('dev')
+                updateImageTag('my-app', 'latest')
+            }
+        }
+        stage('Notify') {
+            steps {
+                sendSlackNotification('Deployment complete!')
+                sendAiReportEmail('Security report')
+            }
+        }
+    }
+}
+```
+
+---
