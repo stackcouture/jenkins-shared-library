@@ -116,8 +116,6 @@ pipeline {
 | Jenkinsfile Stage               | Shared Library Function(s) |
 |--------------------------------|---------------------------|
 | Init & Checkout                 | `cleanWorkspace.groovy` → `cleanWs()`<br>`checkoutGit.groovy` → `checkoutGit(branch, url, secretName)` |
-| Build + Test                    | None (Maven commands) |
-| Javadoc                         | None (Maven command) |
 | SBOM + FS Scan                  | `uploadSbomToDependencyTrack.groovy` → `uploadSbomToDependencyTrack(...)`<br>`runTrivyScanUnified.groovy` → `runTrivyScanUnified(...)` |
 | SonarQube Analysis & Gate       | `sonarScan.groovy` → `sonarScan(...)`<br>`sonarQualityGateCheck.groovy` → `sonarQualityGateCheck(...)` |
 | Build Docker Image              | `buildDockerImage.groovy` → `buildDockerImage(...)` |
