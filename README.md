@@ -110,3 +110,25 @@ pipeline {
 ```
 
 ---
+
+## 📊 Mapping of Jenkinsfile Stages to Shared Library Functions
+
+| Jenkinsfile Stage               | Shared Library Function(s) |
+|--------------------------------|---------------------------|
+| Init & Checkout                 | `cleanWorkspace.groovy` → `cleanWs()`<br>`checkoutGit.groovy` → `checkoutGit(branch, url, secretName)` |
+| Build + Test                    | None (Maven commands) |
+| Javadoc                         | None (Maven command) |
+| SBOM + FS Scan                  | `uploadSbomToDependencyTrack.groovy` → `uploadSbomToDependencyTrack(...)`<br>`runTrivyScanUnified.groovy` → `runTrivyScanUnified(...)` |
+| SonarQube Analysis & Gate       | `sonarScan.groovy` → `sonarScan(...)`<br>`sonarQualityGateCheck.groovy` → `sonarQualityGateCheck(...)` |
+| Build Docker Image              | `buildDockerImage.groovy` → `buildDockerImage(...)` |
+| Security Scans Before Push      | `runTrivyScanUnified.groovy` → `runTrivyScanUnified(...)`<br>`runSnykScan.groovy` → `runSnykScan(...)` |
+| ECR Push                        | `dockerPush.groovy` → `dockerPush(...)` |
+| Sign Image with Cosign           | `signImageWithCosign.groovy` → `signImageWithCosign(...)`<br>`getImageDigest.groovy` → `getImageDigest(...)` |
+| Security Scans After Push       | `runTrivyScanUnified.groovy` → `runTrivyScanUnified(...)`<br>`runSnykScan.groovy` → `runSnykScan(...)` |
+| Confirm YAML Update             | `confirmYamlUpdate.groovy` → `confirmYamlUpdate()` |
+| Update Deployment Files         | `updateImageTag.groovy` → `updateImageTag(...)` |
+| Deploy App                      | `deployApp.groovy` → `deployApp()` |
+| Cleanup                         | `cleanupDockerImages.groovy` → `cleanupDockerImages(...)` |
+| Post / Notifications            | `sendSlackNotification.groovy` → `sendSlackNotification(...)`<br>`sendAiReportEmail.groovy` → `sendAiReportEmail(...)`<br>`postBuildTestArtifacts.groovy` → `postBuildTestArtifacts(...)` |
+
+---
