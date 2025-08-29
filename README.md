@@ -130,3 +130,19 @@ pipeline {
 | Post / Notifications            | `sendSlackNotification.groovy` → `sendSlackNotification(...)`<br>`sendAiReportEmail.groovy` → `sendAiReportEmail(...)`<br>`postBuildTestArtifacts.groovy` → `postBuildTestArtifacts(...)` |
 
 ---
+
+## Contributing
+
+Contributions are welcome! Here’s how you can help:
+
+- Submit issues or feature requests via [GitHub Issues](https://github.com/your-repo/issues).  
+- Fork the repository and submit pull requests.  
+- Add support for additional tools or environments.  
+
+---
+
+## License
+
+This project is licensed under the MIT License – see the [LICENSE](./LICENSE) file for details.
+
+
