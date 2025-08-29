@@ -77,10 +77,6 @@ Scripts are grouped by functionality for easier navigation.
 ```groovy
 @Library('my-shared-library') _
 
-## Example Pipeline (Groovy)
-
-
-```groovy
 pipeline {
     agent any
     stages {
