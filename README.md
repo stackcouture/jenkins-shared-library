@@ -1,10 +1,19 @@
-# Jenkins Shared Library - `vars` Directory
+## Jenkins Shared Library - `vars` Directory
+
+![View Only](https://img.shields.io/badge/license-view--only-red)
+![Status](https://img.shields.io/badge/usage-portfolio%20only-blue)
+
+> ⚠️ **Notice:** This repository is made publicly available for **portfolio evaluation purposes only**.  
+> **You are not permitted to copy, reuse, distribute, or modify this code** in any form.  
+> All rights are reserved by the author. Please contact [Naveen R](naveenramlu28@gmail.com) for permission.
+
+---
 
 This directory contains reusable Groovy scripts (global variables) for Jenkins pipelines. Each script provides a callable function that can be used directly in your `Jenkinsfile`. These scripts cover **CI/CD tasks**, including Docker image management, Git operations, security scanning, deployment, and notifications.
 
 ---
 
-## Directory Overview
+### Directory Overview
 
 Scripts are grouped by functionality for easier navigation.
 
@@ -70,7 +79,7 @@ Scripts are grouped by functionality for easier navigation.
 
 ---
 
-## How to Use
+### How to Use
 
 1. Include the shared library in your `Jenkinsfile`:
 
@@ -111,7 +120,7 @@ pipeline {
 
 ---
 
-## 📊 Mapping of Jenkinsfile Stages to Shared Library Functions
+### Mapping of Jenkinsfile Stages to Shared Library Functions
 
 | Jenkinsfile Stage               | Shared Library Function(s) |
 |--------------------------------|---------------------------|
@@ -131,18 +140,9 @@ pipeline {
 
 ---
 
-## Contributing
+### License
 
-Contributions are welcome! Here’s how you can help:
-
-- Submit issues or feature requests via [GitHub Issues](https://github.com/your-repo/issues).  
-- Fork the repository and submit pull requests.  
-- Add support for additional tools or environments.  
+This project is provided under a **view-only** license for review and portfolio purposes.  
+See the [LICENSE](./LICENSE) file for details.
 
 ---
-
-## License
-
-This project is licensed under the MIT License – see the [LICENSE](./LICENSE) file for details.
-
-
